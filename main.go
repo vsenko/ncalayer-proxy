@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 
 	"github.com/gorilla/websocket"
 )
@@ -146,8 +147,15 @@ func main() {
 	flag.Parse()
 
 	fmt.Printf("Listening on https://127.0.0.1:%v, you have to configure port redirection via firewall like that:\n", *port)
-	fmt.Printf("iptables -t nat -A OUTPUT -o lo -p tcp --dport 13579 -j REDIRECT --to-port %v\n", *port)
-	fmt.Println("iptables -t nat -A OUTPUT -o lo -p tcp --dport 13578 -j REDIRECT --to-port 13579")
+	if runtime.GOOS == "darwin" {
+		fmt.Println("echo \"")
+		fmt.Printf("rdr pass on lo0 inet proto tcp from any to 127.0.0.1 port 13579 -> 127.0.0.1 port %v\n", *port)
+		fmt.Println("rdr pass on lo0 inet proto tcp from any to 127.0.0.1 port 13578 -> 127.0.0.1 port 13579")
+		fmt.Println("\" | sudo pfctl -ef -")
+	} else {
+		fmt.Printf("iptables -t nat -A OUTPUT -o lo -p tcp --dport 13579 -j REDIRECT --to-port %v\n", *port)
+		fmt.Println("iptables -t nat -A OUTPUT -o lo -p tcp --dport 13578 -j REDIRECT --to-port 13579")
+	}
 	fmt.Println("")
 
 	fmt.Println("As long as NCALayer listens on WSS (WebSocket over TLS), this proxy has to behave similarly.")

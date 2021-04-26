@@ -3,7 +3,7 @@ A simple tool to debug communications with NCALayer
 
 Starts a WebSocket proxy that prints all passing messages to console. Without `-no-confirmations` flag suspends all messages until user confirmation.
 
-Requires port forwarding to be configured, currently tested only with Linux `iptables`. Instructions are printed to console during startup.
+Requires port forwarding to be configured, currently tested with Linux `iptables` and macOS `pfctl`. Instructions are printed to console during startup.
 
 ## Installing
 
